@@ -1,0 +1,13 @@
+{
+  "require": {
+    "silex/silex": "~2.0",
+    "aws/aws-sdk-php": "^3.18",
+    "knplabs/console-service-provider": "2.0",
+    "symfony/yaml": "3.1.*"
+  },
+  "autoload": {
+    "psr-0": {
+      "": "src/"
+    }
+  }
+}

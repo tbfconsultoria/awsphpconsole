@@ -18,7 +18,9 @@ class ReadCommand extends Command
             ->setName('app:aws-sqs:read')
             // the short description shown while running "php bin/console list"
             ->setDescription('Le uma fila.')
-            ->addArgument('queueName', null, 'Qual o nome da fila?');
+            ->addArgument('queueName', null, 'Qual o nome da fila?')
+            ->addArgument('maxNumberOfMessages', null, 'Número máximo de mensagens', 10)
+            ->addArgument('i', null, 'Iterações', 5);
     }
 
     protected function execute(InputInterface $input,
@@ -31,14 +33,18 @@ class ReadCommand extends Command
             'version' => 'latest'
         ]);
 
+        $maxNumberOfMessages = $input->getArgument('maxNumberOfMessages');
+        $iteracoes = $input->getArgument('i');
         $result = $client->createQueue(array('QueueName' => $input->getArgument('queueName')));
         $queueUrl = $result->get('QueueUrl');
 
+        $i = 0;
         while (true) {
-            echo "BUSCA ..." . $input->getArgument('queueName') . " ";
+            $i++;
+            echo "BUSCA ... #" . $i . " ->" . $input->getArgument('queueName') . " ";
             $result = $client->receiveMessage(array(
                 'QueueUrl' => $queueUrl,
-                'MaxNumberOfMessages' => 10,
+                'MaxNumberOfMessages' => $maxNumberOfMessages,
                 'MessageAttributeNames' => [
                     ".*"
                 ]
@@ -56,8 +62,10 @@ class ReadCommand extends Command
             } else {
                 echo "sem mensagens...";
             }
-            sleep(5);
             echo PHP_EOL;
+            if ($i == $iteracoes)
+                break;
+            sleep(2);
         }
     }
 }

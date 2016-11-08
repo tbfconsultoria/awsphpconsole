@@ -44,7 +44,7 @@ class StartCommand extends Command
             }
         } catch (\Exception $e) {
             $io->error("verifique o ID da instancia\n" . implode("\n", $instanceId));
-            //$output->writeln("#ERRO " . $e->getMessage());
+            $output->writeln("#ERRO " . $e->getMessage());
         }
     }
 }

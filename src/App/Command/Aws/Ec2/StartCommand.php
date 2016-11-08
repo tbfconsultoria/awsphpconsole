@@ -20,7 +20,7 @@ class StartCommand extends Command
             ->setName('app:aws-ec2:start')
             // the short description shown while running "php bin/console list"
             ->setDescription('Inicia uma instancia.')
-            ->addArgument('instanceId', InputArgument::IS_ARRAY, 'Qual instancia parar?');
+            ->addArgument('instanceId', InputArgument::IS_ARRAY, 'Qual instancia iniciar?');
     }
 
     protected function execute(InputInterface $input,

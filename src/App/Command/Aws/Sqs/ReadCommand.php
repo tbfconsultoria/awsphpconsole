@@ -8,6 +8,7 @@ use Aws\Sqs\SqsClient;
 use Knp\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ReadCommand extends Command
 {
@@ -26,7 +27,8 @@ class ReadCommand extends Command
     protected function execute(InputInterface $input,
                                OutputInterface $output)
     {
-        echo "TESTE SQS LEITURA #" . $input->getArgument('queueName') . PHP_EOL;
+        $io = new SymfonyStyle($input, $output);
+        $io->writeln("TESTE SQS LEITURA #" . $input->getArgument('queueName'));
         $client = new SqsClient([
             'profile' => 'tbf',
             'region' => 'us-east-1',
@@ -41,7 +43,8 @@ class ReadCommand extends Command
         $i = 0;
         while (true) {
             $i++;
-            echo "BUSCA ... #" . $i . " ->" . $input->getArgument('queueName') . " ";
+            $io->writeln("BUSCA ... #" . $i . " ->" . $input->getArgument('queueName') . " ");
+            $io->progressStart(100);
             $result = $client->receiveMessage(array(
                 'QueueUrl' => $queueUrl,
                 'MaxNumberOfMessages' => $maxNumberOfMessages,
@@ -50,17 +53,20 @@ class ReadCommand extends Command
                 ]
             ));
 //    print_r($result);
+            $io->progressFinish();
             if (is_array($result->get('Messages'))) {
                 foreach ($result->get('Messages') as $message) {
                     // Do something with the message
-                    echo PHP_EOL . $message['MessageId'];
-                    echo PHP_EOL . "" . $message['Body'];
-                    foreach ($message['MessageAttributes'] as $attribute => $value) {
-                        echo PHP_EOL . "\t" . $attribute . "\t=>" . $value['StringValue'];
-                    }
+                    $io->success($message['MessageId']);
+                    $io->section($message['Body']);
+//                    if (isset($message['MessageAttributes'])) {
+//                        foreach ($message['MessageAttributes'] as $attribute => $value) {
+//                            echo PHP_EOL . "\t" . $attribute . "\t=>" . $value['StringValue'];
+//                        }
+//                    }
                 }
             } else {
-                echo "sem mensagens...";
+                $io->writeln("sem mensagens...");
             }
             echo PHP_EOL;
             if ($i == $iteracoes)
